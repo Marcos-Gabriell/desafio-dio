@@ -4,74 +4,63 @@ import java.util.*;
 
 public class Dev {
     private String nome;
-    private Set<Conteudo> conteudosInscritos = new LinkedHashSet<>();
-    private Set<Conteudo> conteudosConcluidos = new LinkedHashSet<>();
+    private final Set<Conteudo> conteudosInscritos = new LinkedHashSet<>();
+    private final Set<Conteudo> conteudosConcluidos = new LinkedHashSet<>();
 
-    public void inscreverBootcamp(Bootcamp bootcamp){
+    public void inscreverBootcamp(Bootcamp bootcamp) {
+        if (bootcamp == null) throw new IllegalArgumentException("Bootcamp não pode ser nulo.");
+
         this.conteudosInscritos.addAll(bootcamp.getConteudos());
-        bootcamp.getDevsInscritos().add(this);
+        bootcamp.inscreverDev(this);
     }
 
-    public void progredir() {
+    public boolean progredir() {
         Optional<Conteudo> conteudo = this.conteudosInscritos.stream().findFirst();
-        if(conteudo.isPresent()) {
-            this.conteudosConcluidos.add(conteudo.get());
-            this.conteudosInscritos.remove(conteudo.get());
-        } else {
-            System.err.println("Você não está matriculado em nenhum conteúdo!");
-        }
+        if (conteudo.isEmpty()) return false;
+
+        Conteudo c = conteudo.get();
+        this.conteudosConcluidos.add(c);
+        this.conteudosInscritos.remove(c);
+        return true;
     }
 
     public double calcularTotalXp() {
-        Iterator<Conteudo> iterator = this.conteudosConcluidos.iterator();
-        double soma = 0;
-        while(iterator.hasNext()){
-            double next = iterator.next().calcularXp();
-            soma += next;
-        }
-        return soma;
-
-        /*return this.conteudosConcluidos
-                .stream()
+        return this.conteudosConcluidos.stream()
                 .mapToDouble(Conteudo::calcularXp)
-                .sum();*/
+                .sum();
     }
 
-
-    public String getNome() {
-        return nome;
-    }
+    public String getNome() { return nome; }
 
     public void setNome(String nome) {
+        if (nome == null || nome.isBlank())
+            throw new IllegalArgumentException("Nome não pode ser vazio.");
         this.nome = nome;
     }
 
-    public Set<Conteudo> getConteudosInscritos() {
-        return conteudosInscritos;
-    }
+    public Set<Conteudo> getConteudosInscritos() { return Collections.unmodifiableSet(conteudosInscritos); }
+    public Set<Conteudo> getConteudosConcluidos() { return Collections.unmodifiableSet(conteudosConcluidos); }
 
-    public void setConteudosInscritos(Set<Conteudo> conteudosInscritos) {
-        this.conteudosInscritos = conteudosInscritos;
-    }
-
-    public Set<Conteudo> getConteudosConcluidos() {
-        return conteudosConcluidos;
-    }
-
-    public void setConteudosConcluidos(Set<Conteudo> conteudosConcluidos) {
-        this.conteudosConcluidos = conteudosConcluidos;
+    @Override
+    public String toString() {
+        return "Dev{" +
+                "nome='" + nome + '\'' +
+                ", inscritos=" + conteudosInscritos.size() +
+                ", concluidos=" + conteudosConcluidos.size() +
+                ", xp=" + String.format("%.2f", calcularTotalXp()) +
+                '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Dev)) return false;
         Dev dev = (Dev) o;
-        return Objects.equals(nome, dev.nome) && Objects.equals(conteudosInscritos, dev.conteudosInscritos) && Objects.equals(conteudosConcluidos, dev.conteudosConcluidos);
+        return Objects.equals(nome, dev.nome);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nome, conteudosInscritos, conteudosConcluidos);
+        return Objects.hash(nome);
     }
 }

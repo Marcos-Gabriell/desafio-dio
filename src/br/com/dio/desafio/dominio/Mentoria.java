@@ -1,9 +1,8 @@
 package br.com.dio.desafio.dominio;
 
-
 import java.time.LocalDate;
 
-public class Mentoria extends Conteudo{
+public class Mentoria extends Conteudo {
 
     private LocalDate data;
 
@@ -12,23 +11,16 @@ public class Mentoria extends Conteudo{
         return XP_PADRAO + 20d;
     }
 
-    public Mentoria() {
-    }
-
-    public LocalDate getData() {
-        return data;
-    }
+    public LocalDate getData() { return data; }
 
     public void setData(LocalDate data) {
+        if (data == null)
+            throw new IllegalArgumentException("Data não pode ser nula.");
         this.data = data;
     }
 
     @Override
     public String toString() {
-        return "Mentoria{" +
-                "titulo='" + getTitulo() + '\'' +
-                ", descricao='" + getDescricao() + '\'' +
-                ", data=" + data +
-                '}';
+        return super.toString().replace("}", ", data=" + data + "}");
     }
 }
